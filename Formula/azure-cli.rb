@@ -1,41 +1,57 @@
-require "language/node"
-
 class AzureCli < Formula
-  desc "Official Azure CLI"
-  homepage "https://github.com/azure/azure-xplat-cli"
-  url "https://github.com/Azure/azure-xplat-cli/archive/v0.10.15-July2017.tar.gz"
-  version "0.10.15"
-  sha256 "e63b4586b7eae9065839adfee9a613d4a746ae26a78eb033ef69204026039360"
-  head "https://github.com/azure/azure-xplat-cli.git", :branch => "dev"
+  include Language::Python::Virtualenv
 
-  bottle do
-    cellar :any_skip_relocation
-    rebuild 1
-    sha256 "d2ccc6569274d56a5adb9d3748e15304b55f0c7c8dee5fabc864316bef1a35aa" => :sierra
-    sha256 "434133ceb68bdaf77b50966101e5b396c6fe5ec372a88074ea53f9efbbc2e825" => :el_capitan
-    sha256 "3fdff5d0b06bef174430471071ef03d5c253f279d33abc38678797a4b618b92f" => :yosemite
-  end
+  desc "Microsoft Azure CLI 2.0"
+  homepage "https://docs.microsoft.com/en-us/cli/azure/overview"
+  head "https://github.com/Azure/azure-cli.git"
+  url "https://azurecliprod.blob.core.windows.net/releases/azure-cli_packaged_2.0.15.tar.gz"
+  sha256 "a2d7ce40367f0bccf7da2a599214175fb88aeb88f869ac6b06be8593d04959d6"
 
-  depends_on "node"
-  depends_on :python => :build
+  depends_on :python if MacOS.version <= :snow_leopard
 
   def install
-    rm_rf "bin/windows"
+    virtualenv_create(libexec)
 
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
-    bin.install_symlink Dir["#{libexec}/bin/*"]
-    (bash_completion/"azure").write Utils.popen_read("#{bin}/azure --completion")
+    # Get the components we'll install
+    components = [
+      buildpath/"src/azure-cli",
+      buildpath/"src/azure-cli-core",
+      buildpath/"src/azure-cli-nspkg",
+      buildpath/"src/azure-cli-command_modules-nspkg"
+    ]
+    components += Pathname.glob(buildpath/"src/command_modules/azure-cli-*/")
 
-    # fix cxxstdlib warnings caused by installed (but not used) prebuild binaries for fibers
-    rm_rf Dir[libexec/"lib/node_modules/azure-cli/node_modules/fibers/bin/*-{46,48}"]
+    # Build wheels
+    components.each do |item|
+      Dir.chdir(item) { system libexec/"bin/python", "setup.py", "bdist_wheel", "-d", buildpath/"dist" }
+    end
+
+    # Install CLI using built wheels
+    system libexec/"bin/pip", "install", "azure-cli", "-f", buildpath/"dist"
+
+    # Create executable
+    az_exec = <<-EOS.undent
+      #!/usr/bin/env bash
+      #{libexec}/bin/python -m azure.cli \"$@\"
+    EOS
+    (bin/"az").write(az_exec)
+
+    # Install bash completion
+    bash_completion.install "az.completion" => "az"
   end
 
+  def caveats; <<-EOS.undent
+  This formula is for Azure CLI 2.0 - https://docs.microsoft.com/en-us/cli/azure/overview.
+  The previous Azure CLI has moved to azure-cli@1.0.
+  ----
+  Get started with:
+    $ az
+  EOS
+end
+
   test do
-    shell_output("#{bin}/azure telemetry --disable")
-    json_text = shell_output("#{bin}/azure account env show AzureCloud --json")
-    azure_cloud = JSON.parse(json_text)
-    assert_equal azure_cloud["name"], "AzureCloud"
-    assert_equal azure_cloud["managementEndpointUrl"], "https://management.core.windows.net"
-    assert_equal azure_cloud["resourceManagerEndpointUrl"], "https://management.azure.com/"
+    version_output = shell_output("#{bin}/az --version")
+    assert_match "azure-cli", version_output
+    system bin/"az", "account", "list"
   end
 end
