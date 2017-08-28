@@ -1,6 +1,6 @@
 require "language/node"
 
-class AzureCli < Formula
+class AzureCliAT10 < Formula
   desc "Official Azure CLI"
   homepage "https://github.com/azure/azure-xplat-cli"
   url "https://github.com/Azure/azure-xplat-cli/archive/v0.10.15-July2017.tar.gz"
