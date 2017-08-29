@@ -3,9 +3,9 @@ class AzureCli < Formula
 
   desc "Microsoft Azure CLI 2.0"
   homepage "https://docs.microsoft.com/en-us/cli/azure/overview"
-  head "https://github.com/Azure/azure-cli.git"
   url "https://azurecliprod.blob.core.windows.net/releases/azure-cli_packaged_2.0.15.tar.gz"
   sha256 "a2d7ce40367f0bccf7da2a599214175fb88aeb88f869ac6b06be8593d04959d6"
+  head "https://github.com/Azure/azure-cli.git"
 
   depends_on :python if MacOS.version <= :snow_leopard
 
@@ -17,7 +17,7 @@ class AzureCli < Formula
       buildpath/"src/azure-cli",
       buildpath/"src/azure-cli-core",
       buildpath/"src/azure-cli-nspkg",
-      buildpath/"src/azure-cli-command_modules-nspkg"
+      buildpath/"src/azure-cli-command_modules-nspkg",
     ]
     components += Pathname.glob(buildpath/"src/command_modules/azure-cli-*/")
 
@@ -41,13 +41,13 @@ class AzureCli < Formula
   end
 
   def caveats; <<-EOS.undent
-  This formula is for Azure CLI 2.0 - https://docs.microsoft.com/en-us/cli/azure/overview.
-  The previous Azure CLI has moved to azure-cli@1.0.
-  ----
-  Get started with:
-    $ az
-  EOS
-end
+    This formula is for Azure CLI 2.0 - https://docs.microsoft.com/en-us/cli/azure/overview.
+    The previous Azure CLI has moved to azure-cli@1.0.
+    ----
+    Get started with:
+      $ az
+    EOS
+  end
 
   test do
     version_output = shell_output("#{bin}/az --version")
