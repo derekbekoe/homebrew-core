@@ -3,13 +3,18 @@ class AzureCli < Formula
 
   desc "Microsoft Azure CLI 2.0"
   homepage "https://docs.microsoft.com/cli/azure/overview"
-  url "https://azurecliprod.blob.core.windows.net/releases/azure-cli_packaged_2.0.15.tar.gz"
-  sha256 "a2d7ce40367f0bccf7da2a599214175fb88aeb88f869ac6b06be8593d04959d6"
+  url "https://azurecliprod.blob.core.windows.net/releases/azure-cli_packaged_2.0.15-2.tar.gz"
+  sha256 "76b0da109abc7ee9eb70f53ff90e72e466ae4e8dcaa21752cbdfe105a408724c"
   head "https://github.com/Azure/azure-cli.git"
 
   depends_on :python if MacOS.version <= :snow_leopard
+  depends_on "openssl"
 
   def install
+    ENV.prepend "LDFLAGS", "-L#{Formula["openssl"].opt_lib}"
+    ENV.prepend "CFLAGS", "-I#{Formula["openssl"].opt_include}"
+    ENV.prepend "CPPFLAGS", "-I#{Formula["openssl"].opt_include}"
+
     virtualenv_create(libexec)
 
     # Get the components we'll install
@@ -21,13 +26,14 @@ class AzureCli < Formula
     ]
     components += Pathname.glob(buildpath/"src/command_modules/azure-cli-*/")
 
-    # Build wheels
+    # Build source distributions
     components.each do |item|
-      Dir.chdir(item) { system libexec/"bin/python", "setup.py", "bdist_wheel", "-d", buildpath/"dist" }
+      Dir.chdir(item) { system libexec/"bin/python", "setup.py", "sdist", "-d", buildpath/"dist" }
     end
 
-    # Install CLI using built wheels
-    system libexec/"bin/pip", "install", "azure-cli", "-f", buildpath/"dist"
+    # Install CLI using source distributions only
+    system libexec/"bin/pip", "install", "--no-binary", ":all:", "azure-cli", "-f", buildpath/"dist"
+    system libexec/"bin/pip", "install", "--no-binary", ":all:", "--force-reinstall", "-U", "azure-nspkg", "azure-mgmt-nspkg", "-f", buildpath/"dist"
 
     # Create executable
     az_exec = <<-EOS.undent
