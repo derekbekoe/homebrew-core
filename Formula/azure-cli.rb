@@ -6,7 +6,7 @@ class AzureCli < Formula
   head "https://github.com/Azure/azure-cli.git"
 
   depends_on "openssl"
-  depends_on "python3"
+  depends_on :python3
 
   resource "adal" do
     url "https://files.pythonhosted.org/packages/00/50/0c6e9c4b52b9fd17800a3396abb14e5710ca5812d11ec9ab725026d31f78/adal-0.4.7.tar.gz"
@@ -452,20 +452,20 @@ class AzureCli < Formula
 
     # Install CLI
     components.each do |item|
-      Dir.chdir(item) do
+      cd item do
         system "python3", *Language::Python.setup_install_args(libexec)
       end
     end
 
     # This replaces the `import pkg_resources` namespace imports from upstream
     # with empty string as the import is slow and not needed in this environment.
-    File.open(site_packages/"azure/__init__.py", "w")
-    File.open(site_packages/"azure/cli/__init__.py", "w")
-    File.open(site_packages/"azure/cli/command_modules/__init__.py", "w")
-    File.open(site_packages/"azure/mgmt/__init__.py", "w")
+    File.open(site_packages/"azure/__init__.py", "w") {}
+    File.open(site_packages/"azure/cli/__init__.py", "w") {}
+    File.open(site_packages/"azure/cli/command_modules/__init__.py", "w") {}
+    File.open(site_packages/"azure/mgmt/__init__.py", "w") {}
 
-    # TODO Find fix for https://github.com/Homebrew/brew/issues/837?
-    # Or add a Homebrew caveat that to use 'az extension' commands, 
+    # TODO: Find fix for https://github.com/Homebrew/brew/issues/837?
+    # Or add a Homebrew caveat that to use 'az extension' commands,
     # echo -e "[install]\nprefix=" > ~/.pydistutils.cfg
     # Then you can remove this file after installing an extension.
 
