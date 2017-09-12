@@ -423,6 +423,12 @@ class AzureCli < Formula
     sha256 "8f8d7d40aa28d83f4109a7e8aa86e67a4df202d9538be40c0cb1d70da527b0df"
   end
 
+  # Patch to support 'az extension add' due to https://github.com/Azure/azure-cli/issues/4428
+  patch do
+    url "https://gist.githubusercontent.com/derekbekoe/a53611a1b02515b72a1047e0da268d5b/raw/97daaca266dbd7a5f7070be64353ea80e593679b/azure_cli_homebrew_extension_patch.diff"
+    sha256 "e834613b7d983fca591e2202b6dbe1feab106fdb84edb20ca475828b32d88e61"
+  end
+
   def install
     xy = Language::Python.major_minor_version "python3"
     site_packages = libexec/"lib/python#{xy}/site-packages"
@@ -463,11 +469,6 @@ class AzureCli < Formula
     File.open(site_packages/"azure/cli/__init__.py", "w") {}
     File.open(site_packages/"azure/cli/command_modules/__init__.py", "w") {}
     File.open(site_packages/"azure/mgmt/__init__.py", "w") {}
-
-    # TODO: Find fix for https://github.com/Homebrew/brew/issues/837?
-    # Or add a Homebrew caveat that to use 'az extension' commands,
-    # echo -e "[install]\nprefix=" > ~/.pydistutils.cfg
-    # Then you can remove this file after installing an extension.
 
     az_exec = <<-EOS.undent
       #!/usr/bin/env bash
