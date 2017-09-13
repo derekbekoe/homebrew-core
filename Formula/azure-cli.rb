@@ -212,8 +212,8 @@ class AzureCli < Formula
   end
 
   resource "azure-multiapi-storage" do
-    url "https://files.pythonhosted.org/packages/c0/2c/d13a3c09b3761542c7a8490038cdef2164ea59b614cca7ee49c8ba3a548d/azure-multiapi-storage-0.1.3.tar.gz"
-    sha256 "7cc87fbaa2120ca88f6ea671e550d58c6e499adfd52f5a4159f9d83a2bcb4194"
+    url "https://files.pythonhosted.org/packages/e6/08/a0dbf34bdea6fc1a678f5f50bc3ceebdf8327a6926ae2c35b85458ecd1ea/azure-multiapi-storage-0.1.4.tar.gz"
+    sha256 "9d0b38a87dd4f2202305bc2c0b4a1c95e77ad283ab1c482052eefdc01cebe2fb"
   end
 
   resource "azure-nspkg" do
