@@ -2,7 +2,7 @@ class AzureCli < Formula
   desc "Microsoft Azure CLI 2.0"
   homepage "https://docs.microsoft.com/cli/azure/overview"
   url "https://azurecliprod.blob.core.windows.net/releases/azure-cli_packaged_2.0.19.tar.gz"
-  sha256 "e0bb182cb53bdef8042cda1dd0e0e893b63aca5e415b053af2962e7a416eb072"
+  sha256 "122783657ae015ea92f403ef931e841533ccf3751bcd79fc22787ad28c414fd0"
   head "https://github.com/Azure/azure-cli.git"
 
   bottle do
@@ -41,8 +41,8 @@ class AzureCli < Formula
   end
 
   resource "azure-batch-extensions" do
-    url "NOTFOUND"
-    sha256 ""
+    url "https://pypi.python.org/packages/32/ee/27896a170b84c4aee99d5d111490e186e45e797ec158d1f303cfd8b65683/azure-batch-extensions-1.0.1.tar.gz"
+    sha256 "e35414a2ef18e4525b0841bff32eba268dc2f863c69891bab3aaccb444d898cc"
   end
 
   resource "azure-common" do
